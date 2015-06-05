@@ -11,10 +11,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150605022447) do
+ActiveRecord::Schema.define(version: 20150605102944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "flashcards", force: :cascade do |t|
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.string   "parent_topic"
+    t.string   "subtopic"
+    t.text     "card_front",   null: false
+    t.text     "card_back"
+    t.string   "test_type"
+    t.integer  "flashcard_id"
+  end
+
+  add_index "flashcards", ["flashcard_id"], name: "index_flashcards_on_flashcard_id", using: :btree
+
+  create_table "usage_reports", force: :cascade do |t|
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.string   "custom_sort"
+    t.text     "user_note"
+    t.integer  "times_seen"
+    t.datetime "last_seen_at"
+    t.integer  "user_id"
+    t.integer  "flashcard_id"
+  end
+
+  add_index "usage_reports", ["flashcard_id"], name: "index_usage_reports_on_flashcard_id", using: :btree
+  add_index "usage_reports", ["user_id"], name: "index_usage_reports_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -29,9 +56,13 @@ ActiveRecord::Schema.define(version: 20150605022447) do
     t.inet     "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "user_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+  add_index "users", ["user_id"], name: "index_users_on_user_id", using: :btree
 
+  add_foreign_key "usage_reports", "flashcards"
+  add_foreign_key "usage_reports", "users"
 end
